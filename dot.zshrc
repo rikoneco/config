@@ -31,7 +31,7 @@ setopt prompt_subst prompt_percent prompt_cr prompt_sp
 # purple=%{\e[1;35m%}
 # cyan=%{\e[1;36m%}
 PROMPT=$'%{\e[1;32m%}%n@%M:%~\n%#%{\e[00m%} '
-#RPROMPT=$'%{\e[1;31m%}${vcs_info_msg_0_}%{\e[00m%}'
+RPROMPT=$'%{\e[1;31m%}${vcs_info_msg_0_}%{\e[00m%}'
 
 # functions
 cd() {builtin cd $@; ls;}
