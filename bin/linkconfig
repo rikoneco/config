@@ -8,7 +8,7 @@ files=(.Xmodmap .gitconfig .vimrc .vimperatorrc .zshenv .zshrc)
 
 
 _create() {
-  _delete
+  _backup
   for file in ${files[@]}; do
     ln -s ~/config/dot$file ~/$file && echo "create ~/$file"
   done
@@ -19,6 +19,14 @@ _delete() {
   for file in ${files[@]}; do
     [ -f ~/$file -o -h ~/$file ] && \
       rm -f ~/$file && echo "delete ~/$file"
+  done
+}
+
+
+_backup() {
+  for file in ${files[@]}; do
+    [ -f ~/$file ] && \
+      mv ~/$file ~/$file.orig && echo "rename ~/$file -> ~/$file.orig"
   done
 }
 
