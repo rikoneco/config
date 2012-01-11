@@ -3,3 +3,5 @@
 	email = rikoneco@gmail.com
 [color]
 	ui = auto
+[core]
+	editor = vim -u NONE -i NONE -N -c \"syntax enable\"
