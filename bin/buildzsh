@@ -1,0 +1,38 @@
+#!/bin/sh
+
+# Usage:
+#   % ./zshbuild {install|update}
+
+
+_install() {
+  [ -d ~/local/src ] || mkdir -p ~/local/src
+  cd ~/local/src && \
+  git clone git://zsh.git.sf.net/gitroot/zsh/zsh ./zsh && \
+  cd zsh/ && \
+  _build
+}
+
+
+_update() {
+  cd ~/local/src/zsh && \
+  git pull && \
+  _build
+}
+
+
+_build() {
+  ./Util/preconfig && \
+  ./configure --enable-multibyte && \
+  make && \
+  echo "execute 'sudo make install' for installation"
+}
+
+
+if [ $# -eq 1 ] && \
+  [ "$1" = "install" -o "$1" = "update" ]; then
+  _$1
+else
+  echo "ERROR: invalid argument" >/dev/stderr && exit 1
+fi
+
+exit 0
