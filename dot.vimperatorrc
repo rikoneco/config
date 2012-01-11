@@ -1,0 +1,13 @@
+" key mapping
+nnoremap ZZ <Nop>
+
+nnoremap ; :
+nnoremap : ;
+
+noremap <C-j> <Esc>
+inoremap <C-j> <Esc>
+cnoremap <C-j> <Esc>
+
+nnoremap j 10<C-e>
+nnoremap k 10<C-y>
+
