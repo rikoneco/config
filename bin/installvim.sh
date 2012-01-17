@@ -1,34 +1,46 @@
 #!/bin/sh
 
-# Usage:
-#   % ./vimbuild {install|update|plugin}
+function usage() {
+  cat <<END
+Usage: $0 [COMMAND]
+Install or update vim.
+
+  install       install vim.
+  update        update vim.
+  neobundle     install neobundle.vim
+  help          show this usage. [default]
+END
+}
 
 
-_install() {
+function install() {
   [ -d ~/local/src ] || mkdir -p ~/local/src
   cd ~/local/src && \
   hg clone https://vim.googlecode.com/hg ./vim && \
   cd vim/ && \
-  _build
+  build
 }
 
 
-_update() {
-  cd ~/local/src/vim && \
-  hg pull && hg update && \
-  _build
+function update() {
+  if hg incoming >/dev/null; then
+    cd ~/local/src/vim && \
+    hg pull && hg update && \
+    build
+  fi
 }
 
 
-_build() {
-  ./configure --with-features=huge --disable-gui \
-    --enable-multibyte --enable-xim --enable-fontset  && \
+function build() {
+  ./configure --prefix=$HOME/local --with-features=huge \
+    --enable-multibyte --enable-xim --enable-fontset \
+    --disable-gui && \
   make && \
-  echo "execute 'sudo make install' for installation"
+  make install
 }
 
 
-_plugin() {
+function neobundle() {
   [ -d ~/.neobundle ] || mkdir ~/.neobundle
   cd ~/.neobundle && \
   git clone git://github.com/Shougo/neobundle.vim.git && \
@@ -48,11 +60,16 @@ _plugin() {
 }
 
 
-if [ $# -eq 1 ] && \
-  [ "$1" = "install" -o "$1" = "update" -o "$1" = "plugin" ]; then
-  _$1
-else
-  echo "ERROR: invalid argument" >/dev/stderr && exit 1
-fi
+function main() {
+  case "$1" in
+    'install') install ;;
+    'update') update ;;
+    'neobundle') neobundle ;;
+    'help') usage ;;
+    *) usage >/dev/stderr ;;
+  esac
+}
 
+
+main "$@"
 exit 0
