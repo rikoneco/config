@@ -23,15 +23,7 @@ setopt auto_remove_slash list_ambiguous list_types
 autoload -Uz vcs_info
 precmd() {vcs_info}
 setopt prompt_subst prompt_percent prompt_cr prompt_sp
-# reset=%{\e[00m%}
-# red=%{\e[1;31m%}
-# green=%{\e[1;32m%}
-# yellow=%{\e[1;33m%}
-# blue=%{\e[1;34m%}
-# purple=%{\e[1;35m%}
-# cyan=%{\e[1;36m%}
-PROMPT=$'%{\e[1;32m%}%n@%M:%~\n%#%{\e[00m%} '
-RPROMPT=$'%{\e[1;31m%}${vcs_info_msg_0_}%{\e[00m%}'
+PROMPT=$'%B%F{2}%n@%M:%~%f %F{1}${vcs_info_msg_0_}%f\n%F{2}%#%f%b '
 
 # functions
 cd() {builtin cd $@; ls;}
