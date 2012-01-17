@@ -1,41 +1,47 @@
 #!/bin/sh
 
-# Usage:
-#   % ./linkconfig {create|delete}
-
-
 files=(.Xmodmap .gitconfig .vimrc .vimperatorrc .zshenv .zshrc)
 
 
-_create() {
-  _backup
+function usage() {
+  cat <<END
+Usage: $0 [COMMAND]
+Create or delete symbolic links of dotfiles.
+
+  create     create links.
+  delete     delete existing links.
+  help       show this usage. [default]
+END
+}
+
+
+function makelink() {
   for file in ${files[@]}; do
-    ln -s ~/config/dot$file ~/$file && echo "create ~/$file"
+    if [ -h ~/$file ]; then
+      echo "delete link ~/$file"
+      rm -f ~/$file
+    elif [ -f ~/$file ]; then
+      echo "rename file ~/$file -> ~/$file.orig"
+      mv ~/$file ~/$file.orig
+    fi
+
+    if [ "$1" = 'create' ]; then
+      echo "create link ~/$file"
+      ln -s ~/config/dot$file ~/$file
+    fi
   done
 }
 
 
-_delete() {
-  for file in ${files[@]}; do
-    [ -f ~/$file -o -h ~/$file ] && \
-      rm -f ~/$file && echo "delete ~/$file"
-  done
+function main() {
+  case "$1" in
+    'create') makelink create ;;
+    'delete') makelink delete ;;
+    'help') usage ;;
+    *) usage >/dev/stderr ;;
+  esac
 }
 
 
-_backup() {
-  for file in ${files[@]}; do
-    [ -f ~/$file ] && \
-      mv ~/$file ~/$file.orig && echo "rename ~/$file -> ~/$file.orig"
-  done
-}
-
-
-if [ $# -eq 1 ] && \
-  [ "$1" = "create" -o "$1" = "delete" ]; then
-  _$1
-else
-  echo "ERROR: invalid argument" >/dev/stderr && exit 1
-fi
-
+main "$@"
 exit 0
