@@ -32,8 +32,7 @@ _plugin() {
   [ -d ~/.neobundle ] || mkdir ~/.neobundle
   cd ~/.neobundle && \
   git clone git://github.com/Shougo/neobundle.vim.git && \
-  vim -u NONE \
-    -c "set nocompatible" \
+  vim -u NONE -N \
     -c "filetype off" \
     -c "set runtimepath+=~/.neobundle/neobundle.vim" \
     -c "call neobundle#rc(expand('~/.neobundle'))" \
