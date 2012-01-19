@@ -5,3 +5,8 @@
 	ui = auto
 [core]
 	editor = vim -u NONE -i NONE -N -c \"syntax enable\"
+[alias]
+	co = checkout
+	ci = commit
+	st = status
+	di = diff

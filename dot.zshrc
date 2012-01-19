@@ -26,7 +26,9 @@ setopt prompt_subst prompt_percent prompt_cr prompt_sp
 PROMPT=$'%B%F{2}%n@%M:%~%f %F{1}${vcs_info_msg_0_}%f\n%F{2}%#%f%b '
 
 # functions
-cd() {builtin cd $@; ls;}
+function cd() {builtin cd $1; ls;}
+function alc() {w3m http://eow.alc.co.jp/$1/UTF-8/?ref=sa | less}
+function wikipedia() {w3m http://ja.wikipedia.org/wiki/$1 | less}
 
 # aliases
 alias ,.=' source ~/.zshrc'
@@ -42,5 +44,60 @@ alias d=' dirs -vpl'
 alias cp='cp -pr'
 alias mkdir='mkdir -p'
 alias v='vim'
+alias vi='vim'
 alias w='w3m -B'
+alias g='git'
 
+alias -g L='| less'
+alias -g H='| head'
+alias -g T='| tail'
+alias -g G='| grep'
+if which pbcopy >/dev/null 2>&1; then
+  alias -g C='| pbcopy'
+elif which xsel >/dev/null 2>&1; then
+  alias -g C='| xsel --input --clipboard'
+fi
+
+# vim installation
+function viminstall() {
+  [ -d ~/local/src ] || mkdir -p ~/local/src
+  cd ~/local/src && \
+  hg clone https://vim.googlecode.com/hg ./vim && \
+  cd vim/ && \
+  ./configure --prefix=$HOME/local --with-features=huge \
+    --enable-multibyte --enable-xim --enable-fontset \
+    --disable-gui && \
+  make && \
+  make install
+}
+
+function vimupdate() {
+  cd ~/local/src/vim && \
+  if hg incoming; then
+    hg pull && hg update && \
+    ./configure --prefix=$HOME/local --with-features=huge \
+      --enable-multibyte --enable-xim --enable-fontset \
+      --disable-gui && \
+    make && \
+    make install
+  fi
+}
+
+function neobundle() {
+  [ -d ~/.neobundle ] || mkdir ~/.neobundle
+  cd ~/.neobundle && \
+  git clone git://github.com/Shougo/neobundle.vim.git && \
+  vim -u NONE -N \
+    -c "filetype off" \
+    -c "set runtimepath+=~/.neobundle/neobundle.vim" \
+    -c "call neobundle#rc(expand('~/.neobundle'))" \
+    -c "NeoBundle 'git://github.com/Shougo/neobundle.vim.git'" \
+    -c "NeoBundle 'git://github.com/Shougo/unite.vim.git'" \
+    -c "NeoBundle 'git://github.com/Shougo/vimproc.git'" \
+    -c "filetype plugin indent on" \
+    -c "NeoBundleInstall" \
+    -c "helptags ~/.neobundle/neobundle.vim/doc" \
+    -c "quit" && \
+  cd ~/.neobundle/vimproc && \
+  make -f make_gcc.mak
+}
