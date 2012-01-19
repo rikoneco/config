@@ -64,23 +64,24 @@ function viminstall() {
   cd ~/local/src && \
   hg clone https://vim.googlecode.com/hg ./vim && \
   cd vim/ && \
-  ./configure --prefix=$HOME/local --with-features=huge \
-    --enable-multibyte --enable-xim --enable-fontset \
-    --disable-gui && \
-  make && \
-  make install
+  vimbuild
 }
 
 function vimupdate() {
   cd ~/local/src/vim && \
   if hg incoming; then
-    hg pull && hg update && \
-    ./configure --prefix=$HOME/local --with-features=huge \
-      --enable-multibyte --enable-xim --enable-fontset \
-      --disable-gui && \
-    make && \
-    make install
+    hg pull && \
+    hg update && \
+    vimbuild
   fi
+}
+
+function vimbuild() {
+  ./configure \
+    --with-features=huge --disable-gui \
+    --enable-rubyinterp --enable-pythoninterp --enable-python3interp \
+    --enable-multibyte --enable-xim --enable-fontset && \
+  make
 }
 
 function neobundle() {
