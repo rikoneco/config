@@ -15,7 +15,16 @@ END
 }
 
 
-function makelink() {
+function create() {
+  delete
+  for file in ${files[@]}; do
+    echo "create link ~/$file"
+    ln -s ~/config/dot$file ~/$file
+  done
+}
+
+
+function delete() {
   for file in ${files[@]}; do
     if [ -h ~/$file ]; then
       echo "delete link ~/$file"
@@ -24,24 +33,16 @@ function makelink() {
       echo "rename file ~/$file -> ~/$file.orig"
       mv ~/$file ~/$file.orig
     fi
-
-    if [ "$1" = 'create' ]; then
-      echo "create link ~/$file"
-      ln -s ~/config/dot$file ~/$file
-    fi
   done
 }
 
 
-function main() {
-  case "$1" in
-    'create') makelink create ;;
-    'delete') makelink delete ;;
-    'help') usage ;;
-    *) usage >/dev/stderr ;;
-  esac
-}
+case "$1" in
+  'create') create ;;
+  'delete') delete ;;
+  'help') usage ;;
+  *) usage >/dev/stderr ;;
+esac
 
 
-main "$@"
 exit 0
