@@ -160,8 +160,8 @@ cnoremap <C-j> <C-c>
 nmap <Space> [space]
 nnoremap [space] <Nop>
 
-nnoremap <silent> ,, :<C-u>edit $MYVIMRC<CR>
-nnoremap <silent> ,. :<C-u>source $MYVIMRC<CR>
+nnoremap <silent> [space], :<C-u>edit $MYVIMRC<CR>
+nnoremap <silent> [space]. :<C-u>source $MYVIMRC<CR>
 
 nnoremap <silent> [space]w :<C-u>write<CR>
 nnoremap <silent> [space]fw :<C-u>write!<CR>
