@@ -1,6 +1,6 @@
 #!/bin/sh
 
-files=(.Xmodmap .gitconfig .vimrc .vimperatorrc .zshenv .zshrc)
+files=(.Xmodmap .gitconfig .pythonstartup .vimrc .vimperatorrc .zshenv .zshrc)
 
 
 function usage() {
