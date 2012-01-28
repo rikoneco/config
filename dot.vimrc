@@ -19,6 +19,11 @@ NeoBundle 'git://github.com/thinca/vim-quickrun.git'
 NeoBundle 'git://github.com/thinca/vim-ref.git'
 NeoBundle 'git://github.com/kana/vim-smartchr.git'
 NeoBundle 'git://github.com/tsukkee/unite-help.git'
+NeoBundle 'git://github.com/mattn/webapi-vim.git'
+NeoBundle 'git://github.com/tyru/open-browser.vim.git'
+NeoBundle 'git://github.com/basyura/twibill.vim.git'
+NeoBundle 'git://github.com/basyura/TweetVim.git'
+NeoBundle 'git://github.com/h1mesuke/unite-outline.git'
 
 filetype plugin indent on
 
@@ -116,12 +121,13 @@ set expandtab shiftround autoindent smartindent
 augroup vimrc-ftindent
   autocmd!
   autocmd FileType c setlocal tabstop=4 softtabstop=4 shiftwidth=4
+  autocmd FileType python setlocal tabstop=4 softtabstop=4 shiftwidth=4
 augroup END
 
 
 " == commands ==
 command! -nargs=1 -complete=file Rename
-\ file <args> | call delete(expand('#'))
+  \ file <args> | call delete(expand('#'))
 command! -nargs=1 -complete=option Toggle setlocal <args>! <args>?
 command! -bar RTP echo substitute(&runtimepath, ',', "\n", 'g')
 
@@ -145,8 +151,11 @@ nnoremap <C-h> :<C-u>help<Space>
 nnoremap <C-h><C-h> :<C-u>help<Space><C-r><C-w><CR>
 augroup vimrc-helpclose
   autocmd!
-  autocmd FileType help nnoremap <buffer><silent> q :<C-u>close<CR>
+  autocmd FileType help call s:help_config()
 augroup END
+function! s:help_config()
+  nnoremap <buffer><silent> q :<C-u>close<CR>
+endfunction
 
 nnoremap ; :
 nnoremap : ;
@@ -171,10 +180,6 @@ nnoremap <silent> [space]aq :<C-u>quitall!<CR>
 
 nnoremap [space]t :<C-u>Toggle<Space>
 
-noremap j gj
-noremap k gk
-noremap gj j
-noremap gk k
 noremap J <C-f>
 noremap K <C-b>
 noremap H ^
@@ -204,6 +209,7 @@ onoremap " t"
 nmap w [window]
 nnoremap [window] <Nop>
 nnoremap [window]s :<C-u>split<Space>
+nnoremap [window]n :<C-u>split<Space>
 nnoremap [window]v :<C-u>vsplit<Space>
 nnoremap <silent> [window]c :<C-u>close<CR>
 nnoremap <silent> [window]o :<C-u>only<CR>
@@ -234,16 +240,16 @@ inoremap '' ''<Left>
 inoremap "" ""<Left>
 
 inoremap <expr> <F12> strftime('%Y-%m-%d')
-inoremap <expr> , smartchr#one_of(',', ', ')
-"inoremap <expr> = smartchr#one_of(' = ', '=', ' == ')
-augroup vimrc-rubykeymap
+
+augroup vimrc-pythonkeymap
   autocmd!
-  autocmd FileType ruby call s:rubykeymap()
+  autocmd FileType python call s:python_config()
 augroup END
-function! s:rubykeymap()
-  inoremap <buffer><expr> = smartchr#one_of('=', ' = ', ' == ', ' => ')
-  inoremap <buffer><expr> < smartchr#one_of('<', ' < ', ' <= ')
-  inoremap <buffer><expr> > smartchr#one_of('>', ' > ', ' >= ')
+function! s:python_config()
+  inoremap <buffer><expr> , smartchr#one_of(', ', ',')
+  inoremap <buffer><expr> = smartchr#one_of(' = ', '=', ' == ')
+  inoremap <buffer><expr> < smartchr#one_of(' < ', ' <= ', '<')
+  inoremap <buffer><expr> > smartchr#one_of(' > ', ' >= ', '>')
 endfunction
 
 cnoremap \\ ~/
@@ -270,17 +276,17 @@ nnoremap <silent> [unite]mh :<C-u>UniteWithCursorWord help<CR>
 nnoremap <silent> [unite]b :<C-u>Unite buffer<CR>
 nnoremap <silent> [unite]f :<C-u>Unite -start-insert file_rec/async<CR>
 nnoremap <silent> [unite]l
-\ :<C-u>Unite -winheight=10 -start-insert -no-quit line<CR>
+  \ :<C-u>Unite -winheight=10 -start-insert -no-quit line<CR>
 nnoremap <silent> [unite]ml
-\ :<C-u>UniteWithCursorWord -winheight=10 -no-quit line<CR>
+  \ :<C-u>UniteWithCursorWord -winheight=10 -no-quit line<CR>
 nnoremap <silent> [unite]g
-\ :<C-u>Unite -winheight=10 -start-insert -no-quit grep<CR>
+  \ :<C-u>Unite -winheight=10 -start-insert -no-quit grep<CR>
 
 augroup vimrc-unitekeymap
   autocmd!
-  autocmd FileType unite call s:unitekeymap()
+  autocmd FileType unite call s:unite_config()
 augroup END
-function! s:unitekeymap()
+function! s:unite_config()
   imap <buffer> <C-j> <Plug>(unite_insert_leave)
 endfunction
 
@@ -298,13 +304,13 @@ inoremap <expr> <C-k> neocomplcache#close_popup()
 inoremap <expr> <C-l> neocomplcache#cancel_popup()
 inoremap <expr> <C-u> neocomplcache#undo_completion()
 inoremap <expr> <CR>
-\ pumvisible() ? neocomplcache#close_popup()."\<CR>" : "\<CR>"
+  \ pumvisible() ? neocomplcache#close_popup()."\<CR>" : "\<CR>"
 inoremap <expr> <C-h>
-\ pumvisible() ? neocomplcache#smart_close_popup()."\<C-h>" : "\<C-h>"
+  \ pumvisible() ? neocomplcache#smart_close_popup()."\<C-h>" : "\<C-h>"
 inoremap <expr> <BS>
-\ pumvisible() ? neocomplcache#smart_close_popup()."\<C-h>" : "\<C-h>"
+  \ pumvisible() ? neocomplcache#smart_close_popup()."\<C-h>" : "\<C-h>"
 inoremap <expr> <Tab>
-\ pumvisible() ? neocomplcache#complete_common_string() : "\<Tab>"
+  \ pumvisible() ? neocomplcache#complete_common_string() : "\<Tab>"
 
 imap <C-y> <Plug>(neocomplcache_snippets_expand)
 
@@ -314,7 +320,8 @@ let g:vimfiler_as_default_explorer = 1
 
 nnoremap <silent> [unite]d :<C-u>VimFiler<CR>
 nnoremap <silent> [unite]e
-\ :<C-u>VimFilerSplit -buffer-name=filer -no-quit -toggle -winwidth=40<CR>
+  \ :<C-u>VimFilerSplit -buffer-name=explorer -winwidth=40
+  \                     -no-quit -toggle<CR>
 
 
 " vimshell
@@ -329,12 +336,21 @@ nmap <silent> [unite]s <Plug>(vimshell_switch)
 " neobundle.vim
 nnoremap <silent> <F10> :<C-u>Unite neobundle/install:!<CR>
 
-
-" quickrun
+" quickrun.vim
 let g:quickrun_config = {}
-let g:quickrun_config['_'] = {
-\ 'outputter/buffer/split' : '8',
-\ 'outputter' : 'buffer',
-\ 'runner' : 'vimproc',
-\ }
+let g:quickrun_config.python = {'command' : 'python3'}
+
+nnoremap <silent> <F9> :<C-u>QuickRun<CR>
+
+
+" tweetvim
+nnoremap <silent> <F8> :<C-u>TweetVimHomeTimeline<CR>
+augroup vimrc-tweetvim
+  autocmd!
+  autocmd FileType tweetvim,tweetvim_say setlocal wrap
+  autocmd FileType tweetvim call s:tweetvim_config()
+augroup END
+function! s:tweetvim_config()
+  nnoremap <buffer><silent> s :<C-u>TweetVimSay<CR>
+endfunction
 

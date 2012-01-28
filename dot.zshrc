@@ -1,3 +1,6 @@
+umask 022
+ulimit -c 0
+
 # history
 setopt append_history extended_history hist_ignore_all_dups
 setopt hist_ignore_space hist_no_store hist_reduce_blanks hist_verify
@@ -18,7 +21,7 @@ setopt always_last_prompt bash_auto_list auto_param_keys auto_param_slash
 setopt auto_remove_slash list_ambiguous list_types
 
 # prompt
-# HOST: CWD
+# HOST: CWD VCS
 # %
 autoload -Uz vcs_info
 precmd() {vcs_info}
@@ -27,8 +30,42 @@ PROMPT=$'%B%F{2}%n@%M:%~%f %F{1}${vcs_info_msg_0_}%f\n%F{2}%#%f%b '
 
 # functions
 function cd() {builtin cd $1; ls;}
-function alc() {w3m http://eow.alc.co.jp/$1/UTF-8/?ref=sa | less}
-function wikipedia() {w3m http://ja.wikipedia.org/wiki/$1 | less}
+
+function fing() {
+  if [ -d "$1" ] && [ -n "$2" ]; then
+    find $1 | grep -i $2
+  elif [ -n "$1" ]; then
+    find . | grep -i $1
+  else
+    echo 'Usage: fing DIR WORD  or  fing WORD' >/dev/stderr
+  fi
+}
+
+function alc() {
+  if [ -n "$1" ]; then
+    local words=$(echo $@ | sed -e 's/ /+/g')
+    w3m "http://eow.alc.co.jp/$words/UTF-8/?ref=sa"
+  else
+    echo 'Usage: alc WORD...' >/dev/stderr
+  fi
+}
+
+function google() {
+  if [ -n "$1" ]; then
+    local words=$(echo $@ | sed -e 's/ /+/g')
+    w3m "http://www.google.co.jp/search?hl=ja&q=$words"
+  else
+    echo 'Usage: google WORD...' >/dev/stderr
+  fi
+}
+
+function wikipedia() {
+  if [ -n "$1" ]; then
+    w3m http://ja.wikipedia.org/wiki/$1 | less
+  else
+    echo 'Usage: wikipedia WORD' >/dev/stderr
+  fi
+}
 
 # aliases
 alias ,.=' source ~/.zshrc'
@@ -45,13 +82,15 @@ alias cp='cp -pr'
 alias mkdir='mkdir -p'
 alias v='vim'
 alias vi='vim'
-alias w='w3m -B'
 alias g='git'
+alias py='python3'
+alias vimfiler='vim -c VimFiler'
+alias tweetvim='vim -c TweetVimHomeTimeline'
 
 alias -g L='| less'
 alias -g H='| head'
 alias -g T='| tail'
-alias -g G='| grep'
+alias -g G='| grep -i'
 if which pbcopy >/dev/null 2>&1; then
   alias -g C='| pbcopy'
 elif which xsel >/dev/null 2>&1; then
@@ -60,6 +99,18 @@ fi
 
 # vim installation
 function viminstall() {
+  which vim >/dev/null || (echo 'vim does not exist.' && exit 1)
+  [ -d ~/.vimbackup ] || mkdir ~/.vimbackup
+  # neobundle
+  [ -d ~/.neobundle ] || mkdir ~/.neobundle
+  git clone git://github.com/Shougo/neobundle.vim.git ~/.neobundle/neobundle.vim && \
+  vim \
+    -c "NeoBundleInstall" \
+    -c "helptags ~/.neobundle/neobundle.vim/doc" \
+    -c "quit" && \
+  cd ~/.neobundle/vimproc && \
+  make -f make_gcc.mak
+  # vim install
   [ -d ~/local/src ] || mkdir -p ~/local/src
   cd ~/local/src && \
   hg clone https://vim.googlecode.com/hg ./vim && \
@@ -69,9 +120,9 @@ function viminstall() {
 
 function vimupdate() {
   cd ~/local/src/vim && \
-  if hg incoming; then
-    hg pull && \
-    hg update && \
+  if PYTHONHOME=/usr hg incoming; then
+    PYTHONHOME=/usr hg pull && \
+    PYTHONHOME=/usr hg update && \
     vimbuild
   fi
 }
@@ -81,24 +132,6 @@ function vimbuild() {
     --with-features=huge --disable-gui \
     --enable-rubyinterp --enable-pythoninterp --enable-python3interp \
     --enable-multibyte --enable-xim --enable-fontset && \
-  make
+  make -j3
 }
 
-function neobundle() {
-  [ -d ~/.neobundle ] || mkdir ~/.neobundle
-  cd ~/.neobundle && \
-  git clone git://github.com/Shougo/neobundle.vim.git && \
-  vim -u NONE -N \
-    -c "filetype off" \
-    -c "set runtimepath+=~/.neobundle/neobundle.vim" \
-    -c "call neobundle#rc(expand('~/.neobundle'))" \
-    -c "NeoBundle 'git://github.com/Shougo/neobundle.vim.git'" \
-    -c "NeoBundle 'git://github.com/Shougo/unite.vim.git'" \
-    -c "NeoBundle 'git://github.com/Shougo/vimproc.git'" \
-    -c "filetype plugin indent on" \
-    -c "NeoBundleInstall" \
-    -c "helptags ~/.neobundle/neobundle.vim/doc" \
-    -c "quit" && \
-  cd ~/.neobundle/vimproc && \
-  make -f make_gcc.mak
-}
